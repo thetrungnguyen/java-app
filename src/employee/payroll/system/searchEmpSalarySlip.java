@@ -334,17 +334,7 @@ public class searchEmpSalarySlip extends javax.swing.JFrame {
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, "No Data");
-        } finally {
-
-            try {
-
-                rs.close();
-                pst.close();
-
-            } catch (Exception e) {
-
-            }
-        }
+        } 
     }//GEN-LAST:event_txt_searchKeyReleased
 
     private void txt_firstnameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_firstnameActionPerformed
@@ -380,10 +370,13 @@ public class searchEmpSalarySlip extends javax.swing.JFrame {
                 String sql = "select * from Deductions where emp_id = '" + value1 + "'";
                 pst = conn.prepareStatement(sql);
                 rs = pst.executeQuery();
-                String val = rs.getString(5);
-                String reason = rs.getString(6);
-                rs.close();
-                pst.close();
+                float gt = 0;
+                while(rs.next()){
+                    gt+= rs.getFloat(5);
+                }
+                System.out.print(String.valueOf(gt));
+                //String val = rs.getString(5);
+                //String reason = rs.getString(6);
 
                 String sq = "select * from Allowance where emp_id = '" + value1 + "'";
                 pst = conn.prepareStatement(sq);
@@ -392,8 +385,8 @@ public class searchEmpSalarySlip extends javax.swing.JFrame {
                 //Lấy lương cb + 
                 int calcTotal = Integer.parseInt(txt_salary.getText());
                 float x = Float.valueOf(rs.getString(9));
-                int v = Integer.parseInt(val);
-                float total = calcTotal + x - v;
+                
+                float total = calcTotal + x - gt;
 
                 Document myDocument = new Document();
                 PdfWriter myWriter = PdfWriter.getInstance(myDocument, new FileOutputStream(filePath));
@@ -415,8 +408,8 @@ public class searchEmpSalarySlip extends javax.swing.JFrame {
                 myDocument.add(new Paragraph("Other: $" + rs.getString(5), FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
                 myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
                 myDocument.add(new Paragraph("DEDUCTION", FontFactory.getFont(FontFactory.TIMES_ROMAN, 15, Font.BOLD)));
-                myDocument.add(new Paragraph("Deduction Details: " + reason, FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
-                myDocument.add(new Paragraph("Total Deductions : $" + val, FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
+                //myDocument.add(new Paragraph("Deduction Details: " + reason, FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
+                myDocument.add(new Paragraph("Total Deductions : $" + gt, FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
                 myDocument.add(new Paragraph("-------------------------------------------------------------------------------------------"));
                 myDocument.add(new Paragraph("TOTAL PAYMENT", FontFactory.getFont(FontFactory.TIMES_ROMAN, 15, Font.BOLD)));
                 myDocument.add(new Paragraph("Total Earnings: " + rs.getString(9), FontFactory.getFont(FontFactory.TIMES_ROMAN, 10, Font.PLAIN)));
@@ -425,22 +418,13 @@ public class searchEmpSalarySlip extends javax.swing.JFrame {
 
                 myDocument.newPage();
                 myDocument.close();
-                JOptionPane.showMessageDialog(null, "Report was successfully generated");
-
+                JOptionPane.showMessageDialog(null, "In báo cáo thành công","Thông báo",1);
+                pst = conn.prepareStatement("delete from Deductions where emp_id = '" + value1 + "'");
+                pst.executeUpdate();
             } catch (DocumentException | HeadlessException | FileNotFoundException | NumberFormatException | SQLException e) {
                 JOptionPane.showMessageDialog(null, e);
 
-            } finally {
-
-                try {
-                    rs.close();
-                    pst.close();
-
-                } catch (SQLException e) {
-                    JOptionPane.showMessageDialog(null, e);
-
-                }
-            }
+            } 
         }
 
 
